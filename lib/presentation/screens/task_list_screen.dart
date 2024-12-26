@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:task_assignment/presentation/blocs/task/task_bloc.dart';
 import 'package:task_assignment/presentation/screens/task_creation_screen.dart';
 
 class TaskListScreen extends StatelessWidget {
@@ -7,24 +9,46 @@ class TaskListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Tasks")),
-      body: ListView.builder(
-        itemCount: 10,
-        itemBuilder: (context, index) {
-          // final task = state.tasks[index];
-          return const ListTile(
-            title: Text("Task"),
-            subtitle: Text("Descriprion"),
-          );
+      appBar: AppBar(
+        title: const Text("Tasks"),
+        centerTitle: true,
+      ),
+      body: BlocBuilder<TaskBloc, TaskState>(
+        builder: (context, state) {
+          if (state is CreateTaskLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (state is CreateTaskSuccess) {
+            return ListView.builder(
+              itemCount: state.listofTask.length,
+              itemBuilder: (context, index) {
+                final task = state.listofTask[index];
+                return ListTile(
+                  title: Text(task.name),
+                  subtitle: Text(task.description),
+                  trailing: Text(task.assignedEmployee),
+                );
+              },
+            );
+          }
+          if (state is CreateTaskError) {
+            return const Center(
+              child: Text("Error occurred while loading tasks"),
+            );
+          }
+          return const Center(child: Text("No tasks available"));
         },
       ),
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(bottom: 20, right: 10),
         child: ElevatedButton(
-            onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const TaskCreationScreen(),
-                )),
-            child: const Text("Add Task")),
+          onPressed: () => Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => const TaskCreationScreen(),
+            ),
+          ),
+          child: const Text("Add Task"),
+        ),
       ),
     );
   }
