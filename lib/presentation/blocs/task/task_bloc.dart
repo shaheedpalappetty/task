@@ -1,33 +1,57 @@
-// lib/blocs/task_bloc.dart
-import 'dart:async';
-import 'package:bloc/bloc.dart';
-import 'package:task_assignment/data/models/task_model.dart';
+import 'package:task_assignment/core/utils/imports.dart';
 
 part 'task_event.dart';
 part 'task_state.dart';
 
 class TaskBloc extends Bloc<TaskEvent, TaskState> {
-  final List<TaskModel> _tasks = [];
+  final GetTasks getTasks;
+  final CreateTask createTask;
 
-  TaskBloc() : super(TaskInitial()) {
-    on<CreateTaskEvent>(_createTaskEvent);
-    on<LoadTasksEvent>(_loadTasksEvent);
+  TaskBloc({
+    required this.getTasks,
+    required this.createTask,
+  }) : super(TaskInitial()) {
+    on<LoadTasksEvent>(_onLoadTasks);
+    on<CreateTaskEvent>(_onCreateTask);
   }
 
-  FutureOr<void> _createTaskEvent(
-      CreateTaskEvent event, Emitter<TaskState> emit) async {
-    try {
-      emit(CreateTaskLoading());
+  Future<void> _onLoadTasks(
+    LoadTasksEvent event,
+    Emitter<TaskState> emit,
+  ) async {
+    emit(LoadTasksLoading());
 
-      _tasks.add(event.task);
-      emit(CreateTaskSuccess(listofTask: List.from(_tasks)));
-    } catch (e) {
-      emit(CreateTaskError());
+    final result = await getTasks(const NoParams());
+
+    if (!emit.isDone) {
+      result.fold(
+        (failure) => emit(LoadTasksError(message: failure.message)),
+        (tasks) => emit(CreateTaskSuccess(listofTask: tasks)),
+      );
     }
   }
 
-  FutureOr<void> _loadTasksEvent(
-      LoadTasksEvent event, Emitter<TaskState> emit) {
-    emit(CreateTaskSuccess(listofTask: List.from(_tasks)));
+  Future<void> _onCreateTask(
+    CreateTaskEvent event,
+    Emitter<TaskState> emit,
+  ) async {
+    emit(CreateTaskLoading());
+
+    final result = await createTask(event.task);
+
+    if (!emit.isDone) {
+      await result.fold(
+        (failure) async => emit(CreateTaskError(message: failure.message)),
+        (task) async {
+          final tasksResult = await getTasks(const NoParams());
+          if (!emit.isDone) {
+            tasksResult.fold(
+              (failure) => emit(CreateTaskError(message: failure.message)),
+              (tasks) => emit(CreateTaskSuccess(listofTask: tasks)),
+            );
+          }
+        },
+      );
+    }
   }
 }

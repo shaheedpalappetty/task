@@ -1,7 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:task_assignment/data/models/task_model.dart';
-import 'package:task_assignment/presentation/blocs/task/task_bloc.dart';
+import 'package:task_assignment/core/utils/imports.dart';
 
 class TaskCreationScreen extends StatefulWidget {
   const TaskCreationScreen({super.key});
@@ -16,7 +13,12 @@ class _TaskCreationScreenState extends State<TaskCreationScreen> {
   final _taskDescriptionController = TextEditingController();
   String? _selectedEmployee;
 
-  final List<String> _employees = ['John', 'Jane', 'Mike', 'Sarah'];
+  final List<String> _employees = [
+    'Employee 1',
+    'Employee 2',
+    'Employee 3',
+    'Employee 4'
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -27,62 +29,59 @@ class _TaskCreationScreenState extends State<TaskCreationScreen> {
         }
       },
       child: Scaffold(
-        appBar: AppBar(title: const Text("Create Task")),
+        appBar: AppBar(title: const Text(AppStrings.createTaskTitle)),
         body: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Form(
             key: _formKey,
             child: Column(
               children: [
-                TextFormField(
+                CustomTextField(
                   controller: _taskNameController,
-                  decoration: const InputDecoration(labelText: 'Task Name'),
-                  validator: (value) =>
-                      value?.isEmpty ?? true ? 'Please enter task name' : null,
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _taskDescriptionController,
-                  decoration:
-                      const InputDecoration(labelText: 'Task Description'),
+                  labelText: AppStrings.taskNameLabel,
                   validator: (value) => value?.isEmpty ?? true
-                      ? 'Please enter task description'
+                      ? AppStrings.enterTaskNameError
                       : null,
                 ),
                 const SizedBox(height: 16),
-                DropdownButtonFormField<String>(
+                CustomTextField(
+                  controller: _taskDescriptionController,
+                  labelText: AppStrings.taskDescriptionLabel,
+                  maxLines: 3,
+                  validator: (value) => value?.isEmpty ?? true
+                      ? AppStrings.enterTaskDescriptionError
+                      : null,
+                ),
+                const SizedBox(height: 16),
+                CustomDropdown<String>(
                   value: _selectedEmployee,
-                  decoration: const InputDecoration(labelText: 'Assign To'),
-                  items: _employees.map((employee) {
-                    return DropdownMenuItem(
-                      value: employee,
-                      child: Text(employee),
-                    );
-                  }).toList(),
+                  labelText: AppStrings.assignToLabel,
+                  items: _employees,
+                  getLabel: (employee) => employee,
                   onChanged: (value) {
                     setState(() {
                       _selectedEmployee = value;
                     });
                   },
                   validator: (value) =>
-                      value == null ? 'Please select an employee' : null,
+                      value == null ? AppStrings.selectEmployeeError : null,
                 ),
                 const SizedBox(height: 24),
                 ElevatedButton(
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
-                      context.read<TaskBloc>().add(
-                            CreateTaskEvent(
-                              task: TaskModel(
-                                name: _taskNameController.text,
-                                description: _taskDescriptionController.text,
-                                assignedEmployee: _selectedEmployee!,
-                              ),
-                            ),
-                          );
+                      BlocProvider.of<TaskBloc>(context).add(
+                        CreateTaskEvent(
+                          task: TaskModel(
+                            name: _taskNameController.text,
+                            description: _taskDescriptionController.text,
+                            assignedEmployee: _selectedEmployee!,
+                          ),
+                        ),
+                      );
                     }
                   },
-                  child: const Text("Create Task"),
+                  child: const Text(AppStrings.createTaskButton),
                 ),
               ],
             ),

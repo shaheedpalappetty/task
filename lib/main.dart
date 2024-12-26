@@ -1,24 +1,35 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:task_assignment/presentation/blocs/task/task_bloc.dart';
-import 'package:task_assignment/presentation/screens/task_list_screen.dart';
+import 'package:task_assignment/core/utils/imports.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const MyApp());
+  final localDataSource = TaskLocalDataSourceImpl();
+  final repository = TaskRepositoryImpl(localDataSource);
+  final getTasks = GetTasks(repository);
+  final createTask = CreateTask(repository);
+
+  runApp(MyApp(
+    getTasks: getTasks,
+    createTask: createTask,
+  ));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final GetTasks getTasks;
+  final CreateTask createTask;
+
+  const MyApp({
+    super.key,
+    required this.getTasks,
+    required this.createTask,
+  });
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) {
-        final bloc = TaskBloc();
-        bloc.add(LoadTasksEvent());
-        return bloc;
-      },
+      create: (context) => TaskBloc(
+        getTasks: getTasks,
+        createTask: createTask,
+      )..add(LoadTasksEvent()),
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Task Manager',

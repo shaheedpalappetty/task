@@ -1,4 +1,4 @@
-import 'package:task_assignment/domain/entities/task_entity.dart';
+import 'package:task_assignment/core/utils/imports.dart';
 
 class TaskModel extends TaskEntity {
   TaskModel({
