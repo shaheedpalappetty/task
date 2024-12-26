@@ -16,6 +16,9 @@ class TaskListScreen extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
           if (state is CreateTaskSuccess) {
+            if (state.listofTask.isEmpty) {
+              return const Center(child: Text("No tasks available"));
+            }
             return ListView.builder(
               itemCount: state.listofTask.length,
               itemBuilder: (context, index) {
