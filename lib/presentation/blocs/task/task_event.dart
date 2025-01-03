@@ -20,3 +20,8 @@ class EditTaskEvent extends TaskEvent {
 
   EditTaskEvent({required this.task});
 }
+
+class SearchQueryChanged extends TaskEvent {
+  final String query;
+  SearchQueryChanged(this.query);
+}

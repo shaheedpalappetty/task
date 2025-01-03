@@ -14,14 +14,7 @@ final class CreateTaskError extends TaskState {
 
 final class CreateTaskSuccess extends TaskState {
   final List<TaskEntity> listofTask;
+  final String? message;
 
-  CreateTaskSuccess({required this.listofTask});
-}
-
-final class LoadTasksLoading extends TaskState {}
-
-final class LoadTasksError extends TaskState {
-  final String message;
-
-  LoadTasksError({this.message = 'Error loading tasks'});
+  CreateTaskSuccess({this.message, required this.listofTask});
 }
