@@ -1,7 +1,9 @@
 import 'package:task_assignment/core/utils/imports.dart';
 
 class TaskCreationScreen extends StatefulWidget {
-  const TaskCreationScreen({super.key});
+  final bool isEdit;
+  final TaskEntity? task;
+  const TaskCreationScreen({super.key, this.isEdit = false, this.task});
 
   @override
   State<TaskCreationScreen> createState() => _TaskCreationScreenState();
@@ -19,6 +21,15 @@ class _TaskCreationScreenState extends State<TaskCreationScreen> {
     'Employee 3',
     'Employee 4'
   ];
+  @override
+  void initState() {
+    super.initState();
+    if (widget.isEdit) {
+      _taskNameController.text = widget.task?.name ?? "";
+      _taskDescriptionController.text = widget.task?.description ?? "";
+      _selectedEmployee = widget.task?.assignedEmployee ?? "";
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +40,9 @@ class _TaskCreationScreenState extends State<TaskCreationScreen> {
         }
       },
       child: Scaffold(
-        appBar: AppBar(title: const Text(AppStrings.createTaskTitle)),
+        appBar: AppBar(
+            title: Text(
+                widget.isEdit ? AppStrings.editTask : AppStrings.createTask)),
         body: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Form(
@@ -70,18 +83,34 @@ class _TaskCreationScreenState extends State<TaskCreationScreen> {
                 ElevatedButton(
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
-                      BlocProvider.of<TaskBloc>(context).add(
-                        CreateTaskEvent(
-                          task: TaskModel(
-                            name: _taskNameController.text,
-                            description: _taskDescriptionController.text,
-                            assignedEmployee: _selectedEmployee!,
+                      if (widget.isEdit) {
+                        Logger.log("Edit Clicked task Id${widget.task!.id}");
+                        BlocProvider.of<TaskBloc>(context).add(
+                          EditTaskEvent(
+                            task: TaskModel(
+                              id: widget.task!.id,
+                              name: _taskNameController.text,
+                              description: _taskDescriptionController.text,
+                              assignedEmployee: _selectedEmployee!,
+                            ),
                           ),
-                        ),
-                      );
+                        );
+                      } else {
+                        BlocProvider.of<TaskBloc>(context).add(
+                          CreateTaskEvent(
+                            task: TaskModel(
+                              name: _taskNameController.text,
+                              description: _taskDescriptionController.text,
+                              assignedEmployee: _selectedEmployee!,
+                            ),
+                          ),
+                        );
+                      }
                     }
                   },
-                  child: const Text(AppStrings.createTaskButton),
+                  child: Text(widget.isEdit
+                      ? AppStrings.editTask
+                      : AppStrings.createTask),
                 ),
               ],
             ),

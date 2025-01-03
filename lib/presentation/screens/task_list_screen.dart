@@ -11,7 +11,15 @@ class TaskListScreen extends StatelessWidget {
         title: const Text("Tasks"),
         centerTitle: true,
       ),
-      body: BlocBuilder<TaskBloc, TaskState>(
+      body: BlocConsumer<TaskBloc, TaskState>(
+        listener: (context, state) {
+          if (state is CreateTaskError) {
+            CustomSnackBar.show(context: context, message: state.message);
+          }
+          //  else if (state is CreateTaskSuccess) {
+          //   CustomSnackBar.show(context: context, message: state.message);
+          // }
+        },
         builder: (context, state) {
           if (state is CreateTaskLoading) {
             return const Center(child: CircularProgressIndicator());
@@ -24,6 +32,8 @@ class TaskListScreen extends StatelessWidget {
               itemCount: state.listofTask.length,
               itemBuilder: (context, index) {
                 final task = state.listofTask[index];
+                Logger.log("Length ${state.listofTask.length}");
+                Logger.log("Task ${task.id}");
                 return Dismissible(
                   key: Key(task.id.toString()),
                   direction: DismissDirection.endToStart,
@@ -44,7 +54,6 @@ class TaskListScreen extends StatelessWidget {
                         context: context,
                         message: '${task.name} deleted sucessfully',
                         type: SnackBarType.error);
-                    
                   },
                   confirmDismiss: (direction) async {
                     return await showDialog(
@@ -72,19 +81,36 @@ class TaskListScreen extends StatelessWidget {
                     );
                   },
                   child: ListTile(
-                    title: Text(task.name),
-                    subtitle: Text(task.description),
-                    trailing: Text(task.assignedEmployee),
-                  ),
+                      leading: CircleAvatar(
+                        radius: 20,
+                        child: Center(
+                          child: Text((index + 1).toString()),
+                        ),
+                      ),
+                      title: Text(task.name.toUpperCase()),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(task.description),
+                          Text("Assigned to ${task.assignedEmployee}"),
+                        ],
+                      ),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.edit),
+                        onPressed: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => TaskCreationScreen(
+                              isEdit: true,
+                              task: task,
+                            ),
+                          ),
+                        ),
+                      )),
                 );
               },
             );
           }
-          if (state is CreateTaskError) {
-            return const Center(
-              child: Text("Error occurred while loading tasks"),
-            );
-          }
+
           return const Center(child: Text("No tasks available"));
         },
       ),

@@ -39,4 +39,24 @@ class TaskRepositoryImpl implements TaskRepository {
       return Left(DatabaseFailure(e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, void>> editTask(TaskEntity task) async {
+    try {
+      final taskModel = TaskModel(
+        id: task.id,
+        name: task.name,
+        description: task.description,
+        assignedEmployee: task.assignedEmployee,
+      );
+      final bool isEdited = await localDataSource.editTask(taskModel);
+      if (isEdited) {
+        return const Right(null);
+      } else {
+        return const Left(DatabaseFailure("Unable to Edit"));
+      }
+    } catch (e) {
+      return Left(DatabaseFailure(e.toString()));
+    }
+  }
 }

@@ -4,6 +4,7 @@ abstract class TaskLocalDataSource {
   Future<List<TaskModel>> getTasks();
   Future<TaskModel> createTask(TaskModel task);
   Future<void> deleteTask(int id);
+  Future<bool> editTask(TaskModel task);
 }
 
 class TaskLocalDataSourceImpl implements TaskLocalDataSource {
@@ -62,5 +63,19 @@ class TaskLocalDataSourceImpl implements TaskLocalDataSource {
       where: 'id = ?',
       whereArgs: [id],
     );
+  }
+
+  @override
+  Future<bool> editTask(TaskModel task) async {
+    Logger.log("task ID ${task.toMap()}");
+    final db = await database;
+    final rowsAffected = await db.update(
+      'tasks',
+      task.toMap(),
+      where: 'id = ?',
+      whereArgs: [task.id],
+    );
+    Logger.log("Updated $rowsAffected");
+    return rowsAffected > 0;
   }
 }

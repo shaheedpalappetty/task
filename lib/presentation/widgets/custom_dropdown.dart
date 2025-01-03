@@ -26,7 +26,8 @@ class CustomDropdown<T> extends StatelessWidget {
       decoration: InputDecoration(
         labelText: labelText,
         border: const OutlineInputBorder(),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       ),
       items: items.map((item) {
         return DropdownMenuItem(

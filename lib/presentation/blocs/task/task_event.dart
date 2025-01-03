@@ -14,3 +14,9 @@ class DeleteTaskEvent extends TaskEvent {
   final int taskId;
   DeleteTaskEvent({required this.taskId});
 }
+
+class EditTaskEvent extends TaskEvent {
+  final TaskEntity task;
+
+  EditTaskEvent({required this.task});
+}
