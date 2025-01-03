@@ -30,3 +30,5 @@ export 'package:task_assignment/core/utils/debouncer.dart';
 export 'package:task_assignment/presentation/widgets/floating_button.dart';
 export 'package:task_assignment/presentation/widgets/task_card.dart';
 export 'package:task_assignment/data/datasources/task_local_datasource_impl.dart';
+export 'package:get_it/get_it.dart';
+export 'package:task_assignment/core/utils/service_locator.dart';

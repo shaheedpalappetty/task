@@ -1,52 +1,28 @@
-
 import 'package:task_assignment/core/utils/imports.dart';
-
 
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final localDataSource = TaskLocalDataSourceImpl();
-  final repository = TaskRepositoryImpl(localDataSource);
-  final getTasks = GetTasks(repository);
-  final createTask = CreateTask(repository);
-  final deleteTask = DeleteTask(repository);
-  final editTask = EditTask(repository);
-  final searchTask = SearchTask(repository);
+  setupLocator();
 
-  runApp(MyApp(
-    getTasks: getTasks,
-    createTask: createTask,
-    deleteTask: deleteTask,
-    editTask: editTask,
-    searchTask: searchTask,
-  ));
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  final GetTasks getTasks;
-  final CreateTask createTask;
-  final DeleteTask deleteTask;
-  final EditTask editTask;
-  final SearchTask searchTask;
-
-  const MyApp(
-      {super.key,
-      required this.getTasks,
-      required this.createTask,
-      required this.deleteTask,
-      required this.editTask,
-      required this.searchTask});
+  const MyApp({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => TaskBloc(
-          getTasks: getTasks,
-          createTask: createTask,
-          deleteTask: deleteTask,
-          editTask: editTask,
-          searchTask: searchTask)
-        ..add(LoadTasksEvent()),
+        getTasks: locator<GetTasks>(),
+        createTask: locator<CreateTask>(),
+        deleteTask: locator<DeleteTask>(),
+        editTask: locator<EditTask>(),
+        searchTask: locator<SearchTask>(),
+      )..add(LoadTasksEvent()),
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Task Manager',
